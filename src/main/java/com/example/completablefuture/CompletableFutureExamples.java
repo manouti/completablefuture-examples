@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -30,9 +32,28 @@ public class CompletableFutureExamples {
 
     static Random random = new Random();
 
+    static ScheduledThreadPoolExecutor delayer = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
+        
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            t.setName("CompletableFutureDelayScheduler");
+            return t;
+        }
+    });
+
+    static Executor delayedExecutor = new Executor() {
+        
+        @Override
+        public void execute(Runnable r) {
+            delayer.schedule(r, 1000, TimeUnit.MILLISECONDS);
+        }
+    };
+
     public static void main(String[] args) {
         try {
-//            allOfAsyncExample();
+            completedFutureExample();
         } finally {
             executor.shutdown();
         }
@@ -46,7 +67,7 @@ public class CompletableFutureExamples {
 
     static void completeExceptionallyExample() {
         CompletableFuture<String> cf = CompletableFuture.completedFuture("message").thenApplyAsync(String::toUpperCase,
-                CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
+                delayedExecutor);
         CompletableFuture<String> exceptionHandler = cf.handle((s, th) -> { return (th != null) ? "message upon cancel" : ""; });
         cf.completeExceptionally(new RuntimeException("completed exceptionally"));
         assertTrue("Was not completed exceptionally", cf.isCompletedExceptionally());
@@ -117,7 +138,7 @@ public class CompletableFutureExamples {
 
     static void cancelExample() {
         CompletableFuture<String> cf = CompletableFuture.completedFuture("message").thenApplyAsync(String::toUpperCase,
-                CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
+                delayedExecutor);
         CompletableFuture<String> cf2 = cf.exceptionally(throwable -> "canceled message");
         assertTrue("Was not canceled", cf.cancel(true));
         assertTrue("Was not completed exceptionally", cf.isCompletedExceptionally());
