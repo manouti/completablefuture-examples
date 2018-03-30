@@ -5,7 +5,7 @@
 	<groupId>com.manouti.examples</groupId>
 	<artifactId>completablefuture</artifactId>
 	<version>1.0</version>
-	<description>Examples using CompletableFuture in Java 9</description>
+	<description>Examples using CompletableFuture</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,7 +17,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.7.0</version>
 				<configuration>
-					<release>9</release>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
