@@ -16,7 +16,7 @@ public class CompletableFutureExamples2 {
             }
         }).thenAccept(value -> System.out.println(value));
 
-        sleep(3);
+        sleep(5);
         System.out.println("End of the program");
     }
 
