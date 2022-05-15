@@ -12,6 +12,8 @@ public class RealLifeCompletableFutureExample {
         long start = System.currentTimeMillis();
 
         cars().thenCompose(cars -> {
+
+            // set the rating of each car
             List<CompletionStage<Car>> updatedCars = cars.stream()
                     .map(car -> rating(car.manufacturerId).thenApply(r -> {
                         car.setRating(r);
@@ -20,8 +22,10 @@ public class RealLifeCompletableFutureExample {
 
             CompletableFuture<Void> done = CompletableFuture
                     .allOf(updatedCars.toArray(new CompletableFuture[updatedCars.size()]));
+
             return done.thenApply(v -> updatedCars.stream().map(CompletionStage::toCompletableFuture)
                     .map(CompletableFuture::join).collect(Collectors.toList()));
+
         }).whenComplete((cars, th) -> {
             if (th == null) {
                 cars.forEach(System.out::println);
@@ -43,6 +47,7 @@ public class RealLifeCompletableFutureExample {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
+
             switch (manufacturer) {
             case 2:
                 return 4f;
@@ -61,6 +66,7 @@ public class RealLifeCompletableFutureExample {
         carList.add(new Car(1, 3, "Fiesta", 2017));
         carList.add(new Car(2, 7, "Camry", 2014));
         carList.add(new Car(3, 2, "M2", 2008));
+
         return CompletableFuture.supplyAsync(() -> carList);
     }
 
