@@ -16,19 +16,22 @@ public class CompletableFutureExamples2 {
             }
         }).thenAccept(value -> System.out.println(value));
 
+        sleep(3);
         System.out.println("End of the program");
-
-        //System.out.println("The solution is " + solution);
     }
 
     public static int longNetworkProcess(int value) {
+        sleep(3);
+
+        return value * 10;
+    }
+
+    public static void sleep(int seconds) {
         try {
-            Thread.sleep(10000);
+            Thread.sleep(seconds * 1000);
         }
         catch(InterruptedException e) {
             e.printStackTrace();
         }
-
-        return value * 10;
     }
 }
